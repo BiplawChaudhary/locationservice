@@ -5,6 +5,7 @@ import com.hamroroom.proximitysearch.service.KNNService;
 import com.hamroroom.proximitysearch.service.LocationsService;
 import com.hamroroom.proximitysearch.service.Neighbour;
 import com.hamroroom.proximitysearch.service.QuadTreeService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class QuadTreeController {
 
 
     @GetMapping("/insert-into-quad-tree")
+    @Operation(summary = "Inserts the data into quadtree", description = "@QueryParams \n name = id, type = UUID \n\nReturn Type -> boolean")
     public ResponseEntity<?> createQuadTree(@RequestParam("id")UUID id){
         try{
             log.info("Controller Insert INTO QUAD TREE -> UUID: " + id);
@@ -46,6 +48,7 @@ public class QuadTreeController {
     //Then when this API is hit, django application will receive the data
     //Removing the need to rehit the same api, if user enters different radius.
     @GetMapping("/get-nearest-rooms")
+    @Operation(summary = "Get the nearest room based on input", description = "@QueryParams \n (name = lat, type = Double, for=latitude),(name = long, type = Double, for=longitude) \n (name = searchRadiusInKm, type = Double, for=radius Based Search)")
     public ResponseEntity<?> searchForNearestRooms(@RequestParam("lat")Double latitude,
                                                    @RequestParam("long")Double longitude,
                                                    @RequestParam("searchRadiusInKm") Double searchRadius){
@@ -61,14 +64,4 @@ public class QuadTreeController {
     }
 
 
-    // ************ TEST API
-    @GetMapping("test/get-nearest-rooms")
-    public ResponseEntity<?> searchForNearestRoomsTest(@RequestParam("lat")Double latitude,
-                                                   @RequestParam("long")Double longitude,
-                                                   @RequestParam("searchRadiusInKm") Double searchRadius){
-
-
-        //Then send it to KNN to obtain the result of the proximity based result.
-        return new ResponseEntity<>(quadTreeService.searchForNeighborsId(latitude, longitude, searchRadius), HttpStatus.OK);
-    }
 }
