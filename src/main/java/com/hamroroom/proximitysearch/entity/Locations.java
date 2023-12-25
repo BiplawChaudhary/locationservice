@@ -14,8 +14,13 @@ public class Locations {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    @Column(name = "Latitude")
     private Double latitude;
 
+
+    @Column(name = "longitude")
     private Double longitude;
+
+    @Column(name = "name")
     private String name;
 }
