@@ -12,25 +12,17 @@ import java.util.UUID;
 @Mapper
 public interface LocationsRepo {
 
-    @Select("SELECT * FROM location")
-    @Results(
-        {
-           @Result(property = "id", column = "id"),
-            @Result(property = "name", column = "name"),
-            @Result(property = "latitude", column = "latitude"),
-            @Result(property = "longitude", column = "longitude")
-        }
-    )
+    @Select("SELECT id, latitude, longitude, name FROM location")
+//    @Results(
+//        {
+//           @Result(property = "id", column = "id"),
+//            @Result(property = "name", column = "name"),
+//            @Result(property = "latitude", column = "latitude"),
+//            @Result(property = "longitude", column = "longitude")
+//        }
+//    )
     List<Locations> findAll();
 
-    @Select("SELECT * FROM location WHERE id = #{id}")
-    @Results(
-            {
-                    @Result(property = "id", column = "id"),
-                    @Result(property = "name", column = "name"),
-                    @Result(property = "latitude", column = "latitude"),
-                    @Result(property = "longitude", column = "longitude")
-            }
-    )
+    @Select("SELECT id, latitude, longitude, name FROM location WHERE id=#{id}::uuid")
     Locations findById(@Param("id") UUID id);
 }
