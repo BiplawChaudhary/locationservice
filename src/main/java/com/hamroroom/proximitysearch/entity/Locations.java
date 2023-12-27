@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Data
 public class Locations {
+
     private UUID id;
 
     private Double latitude;
