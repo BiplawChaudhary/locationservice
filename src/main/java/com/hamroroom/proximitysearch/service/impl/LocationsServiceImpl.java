@@ -2,7 +2,7 @@ package com.hamroroom.proximitysearch.service.impl;
 
 
 import com.hamroroom.proximitysearch.entity.Locations;
-import com.hamroroom.proximitysearch.repo.LocationsRepo;
+import com.hamroroom.proximitysearch.mapper.LocationsRepo;
 import com.hamroroom.proximitysearch.service.LocationsService;
 import com.hamroroom.proximitysearch.service.Neighbour;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,6 @@ public class LocationsServiceImpl implements LocationsService {
 
     private final LocationsRepo locationsRepo;
 
-
     @Override
     public List<Locations> getAllLocationsInTable() {
         return locationsRepo.findAll();
@@ -25,8 +24,12 @@ public class LocationsServiceImpl implements LocationsService {
 
     @Override
     public Locations getLocationById(UUID id) throws NameNotFoundException {
-        Optional<Locations> foundLocation = locationsRepo.findById(id);
-        return foundLocation.orElseThrow(NameNotFoundException::new);
+        Locations foundLocation = locationsRepo.findById(id);
+
+        if(foundLocation == null){
+            throw new NameNotFoundException("Name not found");
+        }
+        return foundLocation;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class LocationsServiceImpl implements LocationsService {
         Set<Neighbour> foundData = new LinkedHashSet<>();
 
         for(var each: idSet){
-            Locations foundLocations = locationsRepo.findById(each).get();
+            Locations foundLocations = locationsRepo.findById(each);
             foundData.add(new NeighbourImpl(foundLocations.getId(), foundLocations.getLatitude(), foundLocations.getLongitude()));
         }
         return foundData;
