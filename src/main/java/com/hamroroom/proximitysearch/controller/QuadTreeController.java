@@ -1,22 +1,21 @@
 package com.hamroroom.proximitysearch.controller;
 
 
-import com.hamroroom.proximitysearch.service.KNNService;
-import com.hamroroom.proximitysearch.service.LocationsService;
-import com.hamroroom.proximitysearch.service.Neighbour;
-import com.hamroroom.proximitysearch.service.QuadTreeService;
+import com.hamroroom.proximitysearch.service.*;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.naming.NameNotFoundException;
+import javax.security.auth.Subject;
 import javax.xml.stream.Location;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,6 +28,7 @@ public class QuadTreeController {
     private final QuadTreeService quadTreeService;
     private final KNNService knnService;
     private final LocationsService locationsService;
+    private final IpLocation ipLocation;
 
 
 
@@ -63,5 +63,21 @@ public class QuadTreeController {
         return new ResponseEntity<>(knnService.getKthNearestRooms(proximityResult, latitude, longitude), HttpStatus.OK);
     }
 
+
+    @PostMapping("/get-ip-recommendation")
+    @Operation(summary = "Get the room data based on currnet IP location", description = "Send Ip address in request body as plain text and the search radius as query param")
+    public ResponseEntity<?> getRecommendationBasedOnIpAddress(@RequestBody String ipString, @RequestParam("searchRadius") Double searchRadius){
+        log.info("Got Ip address: " + ipString);
+
+        try{
+            Map<String, Object> receivedData = ipLocation.getSpatialDataFromIp(ipString);
+
+            return new ResponseEntity<>(quadTreeService.searchForNeighborsId( (Double) receivedData.get("latitude"), (Double) receivedData.get("longitude"), searchRadius), HttpStatus.OK);
+        }catch (IOException | GeoIp2Exception ex2){
+            log.error(ex2.toString());
+            return new ResponseEntity<>("Exception OCcurred", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+    }
 
 }
